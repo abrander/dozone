@@ -37,6 +37,7 @@ func (d *Domain) Find(client *godo.Client) error {
 
 	for _, domain := range domains {
 		if d.ZoneName == NewZoneName(domain.Name) {
+			d.Domain = &domain
 			return nil
 		}
 	}
