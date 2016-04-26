@@ -27,6 +27,7 @@ var (
 	client    *godo.Client
 	debugHTTP = true
 	yes       = true
+	download  string
 )
 
 func init() {
@@ -38,6 +39,7 @@ func init() {
 
 	flag.BoolVar(&debugHTTP, "debugHTTP", false, "Output Digital Ocean API requests for debugging")
 	flag.BoolVar(&yes, "yes", false, "Don't ask before committing")
+	flag.StringVar(&download, "download", "", "Download zone")
 
 	flag.Parse()
 }
@@ -83,6 +85,19 @@ func bailIfError(err error) {
 }
 
 func main() {
+	client := getClient()
+
+	if download != "" {
+		dom := proxy.NewDomain(proxy.NewZoneName(download))
+
+		err := dom.Find(client)
+		bailIfError(err)
+
+		fmt.Printf("%s", dom.ZoneFile)
+
+		os.Exit(0)
+	}
+
 	filename := flag.Arg(0)
 	r, err := os.Open(filename)
 	bailIfError(err)
@@ -121,8 +136,6 @@ func main() {
 	if zoneName.String("") == "" {
 		bail("Could not derive zone name from zone file")
 	}
-
-	client := getClient()
 
 	dom := proxy.NewDomain(zoneName)
 
