@@ -172,6 +172,8 @@ func main() {
 			fmt.Printf("\n")
 		}
 
+		numChanges := len(list)
+
 		list = nil
 		for _, token := range zoneTokens {
 			if !token.matched {
@@ -186,14 +188,18 @@ func main() {
 			fmt.Printf("\n")
 		}
 
-		fmt.Printf("Continue (y/N)? ")
+		numChanges += len(list)
 
-		bio := bufio.NewReader(os.Stdin)
-		line, _, _ := bio.ReadLine()
+		if numChanges > 0 {
+			fmt.Printf("%d change(s). Continue (y/N)? ", numChanges)
 
-		// If we get anything but y/Y we abort.
-		if !(string(line) == "y" || string(line) == "Y") {
-			bail("Aborting")
+			bio := bufio.NewReader(os.Stdin)
+			line, _, _ := bio.ReadLine()
+
+			// If we get anything but y/Y we abort.
+			if !(string(line) == "y" || string(line) == "Y") {
+				bail("Aborting")
+			}
 		}
 	}
 
