@@ -74,11 +74,11 @@ func (r *Record) Matches(token *dns.Token) bool {
 			return false
 		}
 
-		if mx.Mx == r.Data {
+		if mx.Mx == r.Data+"." {
 			return true
 		}
 
-		return true
+		return false
 	case "TXT":
 		txt, ok := token.RR.(*dns.TXT)
 		if !ok {
