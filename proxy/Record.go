@@ -44,15 +44,14 @@ func (r *Record) Matches(token *dns.Token) bool {
 		}
 
 	case "CNAME":
-		_, ok := token.RR.(*dns.CNAME)
+		cname, ok := token.RR.(*dns.CNAME)
 		if !ok {
 			return false
 		}
 
-		// For now Digital Ocean's API is broken regarding CNAME records. We have to assume that nothing matches for now.
-		// https://cloud.digitalocean.com/support/tickets/1029072
-
-		return false
+		if cname.Target == r.zoneName.FQDN(r.Data) {
+			return true
+		}
 
 	case "NS":
 		ns, ok := token.RR.(*dns.NS)

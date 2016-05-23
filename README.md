@@ -22,5 +22,3 @@ Synchronize local zone without asking:
 # Limitations
 
 Only `A`, `CNAME`, `MX`, `NS` and `TXT` records are supported for now. It's trivial to add more. Pull Requests for `AAAA` and `SRV` records would be appreciated :)
-
-Due to a bug in the Digital Ocean API, this tool cannot compare CNAME records. CNAME records will always be deleted and rewritten for now. Digital Ocean is aware of this problem, and is working on a solution.
