@@ -155,40 +155,68 @@ func main() {
 		}
 	}
 
+	// Find records to delete.
+	toDelete := make(map[godo.DomainRecord]bool)
+	for _, rec := range dom.Records {
+		if !rec.Matched {
+			toDelete[rec.DomainRecord] = true
+		}
+	}
+
+	// Find records to add.
+	toAdd := make(map[*tokenContainer]*godo.DomainRecordEditRequest)
+	for _, token := range zoneTokens {
+		if !token.matched {
+			toAdd[token] = token.CreateRequest()
+		}
+	}
+
+	// Find records to edit
+	toEdit := make(map[godo.DomainRecord]*godo.DomainRecordEditRequest)
+	for rec := range toDelete {
+		for token := range toAdd {
+			req := token.CreateRequest()
+			if req.Name == zoneName.FQDN(rec.Name) {
+				toEdit[rec] = token.CreateRequest()
+
+				// Remove from add/delete maps.
+				delete(toAdd, token)
+				delete(toDelete, rec)
+			}
+		}
+	}
+
 	if !yes {
 		// Present work for the user.
-		list := []string{}
-		for _, rec := range dom.Records {
-			if !rec.Matched {
-				list = append(list, rec.String())
-			}
-		}
-
-		if len(list) > 0 {
+		if len(toDelete) > 0 {
 			fmt.Printf("Records to delete:\n")
-			for _, r := range list {
-				fmt.Printf("%s\n", r)
+			for r := range toDelete {
+				fmt.Printf("%s\n", r.String())
 			}
 			fmt.Printf("\n")
 		}
 
-		numChanges := len(list)
+		numChanges := len(toDelete)
 
-		list = nil
-		for _, token := range zoneTokens {
-			if !token.matched {
-				list = append(list, token.String())
-			}
-		}
-		if len(list) > 0 {
+		if len(toAdd) > 0 {
 			fmt.Printf("Records to add:\n")
-			for _, r := range list {
+			for _, r := range toAdd {
 				fmt.Printf("%s\n", r)
 			}
 			fmt.Printf("\n")
 		}
 
-		numChanges += len(list)
+		numChanges += len(toAdd)
+
+		if len(toEdit) > 0 {
+			fmt.Printf("Records to update:\n")
+			for from, to := range toEdit {
+				fmt.Printf("%s -> %s\n", from, to)
+			}
+			fmt.Printf("\n")
+		}
+
+		numChanges += len(toEdit)
 
 		if numChanges > 0 {
 			fmt.Printf("%d change(s). Continue (y/N)? ", numChanges)
@@ -204,23 +232,24 @@ func main() {
 	}
 
 	// Delete DO records not present in the zone.
-	for _, rec := range dom.Records {
-		if !rec.Matched {
-			fmt.Printf("Deleting %+v\n", rec)
-			err = rec.Delete(client)
-			bailIfError(err)
-		}
+	for rec := range toDelete {
+		fmt.Printf("Deleting %+v\n", rec)
+		_, err = client.Domains.DeleteRecord(string(zoneName), rec.ID)
+		bailIfError(err)
 	}
 
 	// Add zone records missing from DO.
-	for _, token := range zoneTokens {
-		if !token.matched {
-			req := token.CreateRequest()
+	for _, req := range toAdd {
+		fmt.Printf("Adding %+v\n", req)
+		_, _, err := client.Domains.CreateRecord(zoneName.String(""), req)
+		bailIfError(err)
+	}
 
-			fmt.Printf("Adding %+v\n", req)
-			_, _, err := client.Domains.CreateRecord(zoneName.String(""), req)
-			bailIfError(err)
-		}
+	// Edit records.
+	for from, to := range toEdit {
+		fmt.Printf("Updating %+v\n", from)
+		_, _, err := client.Domains.EditRecord(zoneName.String(""), from.ID, to)
+		bailIfError(err)
 	}
 
 	fmt.Printf("Zone synced.\n")
