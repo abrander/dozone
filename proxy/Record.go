@@ -43,6 +43,16 @@ func (r *Record) Matches(token *dns.Token) bool {
 			return true
 		}
 
+	case "AAAA":
+		aaaa, ok := token.RR.(*dns.AAAA)
+		if !ok {
+			return false
+		}
+
+		if net.ParseIP(r.Data).Equal(aaaa.AAAA) {
+			return true
+		}
+
 	case "CNAME":
 		cname, ok := token.RR.(*dns.CNAME)
 		if !ok {

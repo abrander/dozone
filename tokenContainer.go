@@ -25,6 +25,11 @@ func (t *tokenContainer) CreateRequest() *godo.DomainRecordEditRequest {
 		req.Type = "A"
 		req.Name = a.Header().Name
 		req.Data = a.A.String()
+	case *dns.AAAA:
+		aaaa := t.RR.(*dns.AAAA)
+		req.Type = "AAAA"
+		req.Name = aaaa.Header().Name
+		req.Data = aaaa.AAAA.String()
 	case *dns.CNAME:
 		cname := t.RR.(*dns.CNAME)
 		req.Type = "CNAME"

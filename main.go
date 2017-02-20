@@ -113,6 +113,8 @@ func main() {
 			switch token.RR.(type) {
 			case *dns.A:
 				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+			case *dns.AAAA:
+				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
 			case *dns.CNAME:
 				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
 			case *dns.MX:

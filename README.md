@@ -21,4 +21,4 @@ Synchronize local zone without asking:
 
 # Limitations
 
-Only `A`, `CNAME`, `MX`, `NS` and `TXT` records are supported for now. It's trivial to add more. Pull Requests for `AAAA` and `SRV` records would be appreciated :)
+Only `A`, `AAAA`, `CNAME`, `MX`, `NS` and `TXT` records are supported for now. It's trivial to add more. Pull Requests for `SRV` records would be appreciated :)
