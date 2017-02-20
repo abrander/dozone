@@ -176,7 +176,7 @@ func main() {
 	for rec := range toDelete {
 		for token := range toAdd {
 			req := token.CreateRequest()
-			if req.Name == zoneName.FQDN(rec.Name) {
+			if req.Name == zoneName.FQDN(rec.Name) && req.Type == rec.Type {
 				toEdit[rec] = token.CreateRequest()
 
 				// Remove from add/delete maps.
