@@ -88,6 +88,27 @@ func (r *Record) Matches(token *dns.Token) bool {
 		}
 
 		return false
+
+	case "SRV":
+		srv, ok := token.RR.(*dns.SRV)
+		if !ok {
+			return false
+		}
+
+		if int(srv.Priority) != r.Priority {
+			return false
+		}
+
+		if int(srv.Port) != r.Port {
+			return false
+		}
+
+		if srv.Target == r.Data+"." {
+			return true
+		}
+
+		return false
+
 	case "TXT":
 		txt, ok := token.RR.(*dns.TXT)
 		if !ok {

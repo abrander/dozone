@@ -127,10 +127,12 @@ func main() {
 				if trimmed != "" {
 					zoneName = proxy.NewZoneName(soa.Header().Name)
 				}
+			case *dns.SRV:
+				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
 			case *dns.TXT:
 				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
 			default:
-				fmt.Printf("%T not supported yet\n", token.RR)
+				fmt.Printf("%T is not supported\n", token.RR)
 			}
 		}
 	}

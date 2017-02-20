@@ -18,7 +18,3 @@ Synchronize local example.com-zone file to Digital Ocean:
 Synchronize local zone without asking:
 
 `$ dozone -yes example.com.zone`
-
-# Limitations
-
-Only `A`, `AAAA`, `CNAME`, `MX`, `NS` and `TXT` records are supported for now. It's trivial to add more. Pull Requests for `SRV` records would be appreciated :)

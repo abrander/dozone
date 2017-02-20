@@ -46,6 +46,14 @@ func (t *tokenContainer) CreateRequest() *godo.DomainRecordEditRequest {
 		req.Type = "NS"
 		req.Name = ns.Header().Name
 		req.Data = ns.Ns
+	case *dns.SRV:
+		srv := t.RR.(*dns.SRV)
+		req.Type = "SRV"
+		req.Name = srv.Header().Name
+		req.Data = srv.Target
+		req.Priority = int(srv.Priority)
+		req.Port = int(srv.Port)
+		req.Weight = int(srv.Weight)
 	case *dns.TXT:
 		txt := t.RR.(*dns.TXT)
 		req.Type = "TXT"
