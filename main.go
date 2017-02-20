@@ -107,33 +107,31 @@ func main() {
 	var zoneName proxy.ZoneName
 
 	for token := range dns.ParseZone(r, "", "") {
-		if token.Error != nil {
-			fmt.Printf("%s\n", token.Error.Error())
-		} else {
-			switch token.RR.(type) {
-			case *dns.A:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.AAAA:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.CNAME:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.MX:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.NS:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.SOA:
-				soa := token.RR.(*dns.SOA)
-				trimmed := strings.Trim(soa.Header().Name, ".")
-				if trimmed != "" {
-					zoneName = proxy.NewZoneName(soa.Header().Name)
-				}
-			case *dns.SRV:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			case *dns.TXT:
-				zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
-			default:
-				fmt.Printf("%T is not supported\n", token.RR)
+		bailIfError(token.Error)
+
+		switch token.RR.(type) {
+		case *dns.A:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.AAAA:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.CNAME:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.MX:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.NS:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.SOA:
+			soa := token.RR.(*dns.SOA)
+			trimmed := strings.Trim(soa.Header().Name, ".")
+			if trimmed != "" {
+				zoneName = proxy.NewZoneName(soa.Header().Name)
 			}
+		case *dns.SRV:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		case *dns.TXT:
+			zoneTokens = append(zoneTokens, &tokenContainer{Token: token})
+		default:
+			fmt.Printf("%T is not supported\n", token.RR)
 		}
 	}
 
