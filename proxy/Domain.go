@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"context"
 	"errors"
 
 	"github.com/digitalocean/godo"
@@ -30,7 +31,7 @@ func NewDomain(zoneName ZoneName) *Domain {
 // Find will try to find the matching domain at Digital Ocean.
 func (d *Domain) Find(client *godo.Client) error {
 	// Check if the domain is registered at Digital Ocean.
-	domains, _, err := client.Domains.List(nil)
+	domains, _, err := client.Domains.List(context.TODO(), nil)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (d *Domain) Add(client *godo.Client) error {
 		IPAddress: "127.0.0.1", // FIXME: Try to add something that makes more sense
 	}
 
-	domain, _, err := client.Domains.Create(&req)
+	domain, _, err := client.Domains.Create(context.TODO(), &req)
 	if err != nil {
 		return err
 	}
@@ -85,7 +86,7 @@ func (d *Domain) RefreshRecords(client *godo.Client) error {
 
 	d.Records = nil
 	for {
-		records, resp, err := client.Domains.Records(d.ZoneName.String(""), opt)
+		records, resp, err := client.Domains.Records(context.TODO(), d.ZoneName.String(""), opt)
 		if err != nil {
 			return err
 		}

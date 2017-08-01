@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"context"
 	"fmt"
 	"net"
 
@@ -130,6 +131,6 @@ func (r *Record) Matches(token *dns.Token) bool {
 
 // Delete will delete the record at Digital Ocean
 func (r *Record) Delete(client *godo.Client) error {
-	_, err := client.Domains.DeleteRecord(r.zoneName.String(""), r.ID)
+	_, err := client.Domains.DeleteRecord(context.TODO(), r.zoneName.String(""), r.ID)
 	return err
 }

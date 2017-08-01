@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -236,21 +237,21 @@ func main() {
 	// Delete DO records not present in the zone.
 	for rec := range toDelete {
 		fmt.Printf("Deleting %+v\n", rec)
-		_, err = client.Domains.DeleteRecord(string(zoneName), rec.ID)
+		_, err = client.Domains.DeleteRecord(context.TODO(), string(zoneName), rec.ID)
 		bailIfError(err)
 	}
 
 	// Add zone records missing from DO.
 	for _, req := range toAdd {
 		fmt.Printf("Adding %+v\n", req)
-		_, _, err := client.Domains.CreateRecord(zoneName.String(""), req)
+		_, _, err := client.Domains.CreateRecord(context.TODO(), zoneName.String(""), req)
 		bailIfError(err)
 	}
 
 	// Edit records.
 	for from, to := range toEdit {
 		fmt.Printf("Updating %+v\n", from)
-		_, _, err := client.Domains.EditRecord(zoneName.String(""), from.ID, to)
+		_, _, err := client.Domains.EditRecord(context.TODO(), zoneName.String(""), from.ID, to)
 		bailIfError(err)
 	}
 
