@@ -108,7 +108,9 @@ func main() {
 	var zoneName proxy.ZoneName
 
 	for token := range dns.ParseZone(r, "", "") {
-		bailIfError(token.Error)
+		if token.Error != nil {
+			bail("Error: %s\n", token.Error.Error())
+		}
 
 		switch token.RR.(type) {
 		case *dns.A:
