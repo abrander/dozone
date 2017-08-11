@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/miekg/dns"
@@ -191,6 +192,8 @@ func main() {
 		}
 	}
 
+	numChanges := 0
+
 	if !yes {
 		// Present work for the user.
 		if len(toDelete) > 0 {
@@ -201,7 +204,7 @@ func main() {
 			fmt.Printf("\n")
 		}
 
-		numChanges := len(toDelete)
+		numChanges += len(toDelete)
 
 		if len(toAdd) > 0 {
 			fmt.Printf("Records to add:\n")
@@ -236,11 +239,16 @@ func main() {
 		}
 	}
 
+	start := time.Now()
+	num := 0
+
 	// Delete DO records not present in the zone.
 	for rec := range toDelete {
 		fmt.Printf("Deleting %+v\n", rec)
 		_, err = client.Domains.DeleteRecord(context.TODO(), string(zoneName), rec.ID)
 		bailIfError(err)
+		num++
+		elapsed(start, num, numChanges)
 	}
 
 	// Add zone records missing from DO.
@@ -248,6 +256,8 @@ func main() {
 		fmt.Printf("Adding %+v\n", req)
 		_, _, err := client.Domains.CreateRecord(context.TODO(), zoneName.String(""), req)
 		bailIfError(err)
+		num++
+		elapsed(start, num, numChanges)
 	}
 
 	// Edit records.
@@ -255,7 +265,16 @@ func main() {
 		fmt.Printf("Updating %+v\n", from)
 		_, _, err := client.Domains.EditRecord(context.TODO(), zoneName.String(""), from.ID, to)
 		bailIfError(err)
+		num++
+		elapsed(start, num, numChanges)
 	}
 
 	fmt.Printf("Zone synced.\n")
+}
+
+func elapsed(start time.Time, num int, numChanges int) {
+	elapsed := time.Now().Sub(start)
+	average := elapsed / time.Duration(num)
+	eta := time.Now().Add(average*time.Duration(numChanges-num))
+	fmt.Printf("%d/%d - elapsed: %.1fs - eta: %s\n", num, numChanges, elapsed.Seconds(), eta.Truncate(time.Second).String())
 }
