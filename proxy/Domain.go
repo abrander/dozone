@@ -3,6 +3,7 @@ package proxy
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/digitalocean/godo"
 )
@@ -95,6 +96,8 @@ func (d *Domain) RefreshRecords(client *godo.Client) error {
 			record := NewRecord(dr, d.ZoneName)
 			d.Records = append(d.Records, record)
 		}
+
+		fmt.Printf("We got %d records", len(d.Records)
 
 		// if we are at the last page, break out of the for loop.
 		if resp.Links == nil || resp.Links.IsLastPage() {
