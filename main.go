@@ -275,6 +275,6 @@ func main() {
 func elapsed(start time.Time, num int, numChanges int) {
 	elapsed := time.Now().Sub(start)
 	average := elapsed / time.Duration(num)
-	eta := time.Now().Add(average*time.Duration(numChanges-num))
+	eta := time.Now().Add(average * time.Duration(numChanges-num))
 	fmt.Printf("%d/%d - elapsed: %.1fs - eta: %s\n", num, numChanges, elapsed.Seconds(), eta.Truncate(time.Second).String())
 }
