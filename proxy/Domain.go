@@ -97,7 +97,7 @@ func (d *Domain) RefreshRecords(client *godo.Client) error {
 			d.Records = append(d.Records, record)
 		}
 
-		fmt.Printf("We got %d records", len(d.Records)
+		fmt.Printf("We got %d records", len(d.Records))
 
 		// if we are at the last page, break out of the for loop.
 		if resp.Links == nil || resp.Links.IsLastPage() {
